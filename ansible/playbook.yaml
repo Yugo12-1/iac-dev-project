@@ -1,0 +1,41 @@
+# install Nginx using Ansible
+# Start and Enable Nginx
+# Check the status of Nginx
+# Collect host information
+# Creat index.html file for web1 and web2 servers
+- name: Setup nginx server on myserver list (host group)
+  hosts:
+    - webservers
+  become: True #特権での実行
+
+  tasks:
+    - name: Install the latest version of nginx
+      command: yum install nginx -y
+
+    - name: Start nginx service
+      service:
+        name: nginx
+        state: started        
+
+    - name: Enable nginx service
+      service:
+        name: nginx
+        enabled: yes
+        
+    - name: Get nginx Installed version
+      command: nginx -v
+
+    - name: Get status of nginx service
+      command: systemctl status nginx
+
+    - name: Create index.html for web1
+      copy:
+        content: "<html><body><h1>This is web1</h1></body></html>"
+        dest: /usr/share/nginx/html/index.html
+      when: "'web1' in inventory_hostname"
+    
+    - name: Create index.html for web2
+      copy:
+        content: "<html><body><h1>This is web2</h1></body></html>"
+        dest: /usr/share/nginx/html/index.html
+      when: "'web2' in inventory_hostname"
